@@ -1,7 +1,7 @@
 /*
  * natu19_b_joy_main.cpp
  *
- *  Created on: Aug 19, 2019
+ *  Created on: Aug 21, 2019
  *      Author: shun
  */
 
@@ -98,7 +98,7 @@ private:
     //static constexpr int lift_position_second = lift_position_first - (248 * steps_per_mm);
     //static constexpr int lift_position_third = lift_position_second - (248 * steps_per_mm);
 
-    bool _shutdown = false;
+    int _shutdown = 0;
 
     static int ButtonA;
     static int ButtonB;
@@ -135,14 +135,14 @@ CrMain::CrMain(void)
     shutdown_input_sub = nh_.subscribe<std_msgs::Empty>("shutdown_input", 10, &CrMain::shutdownInputCallback, this);
     start_input_sub = nh_.subscribe<std_msgs::Empty>("start_input", 10, &CrMain::startInputCallback, this);
 
-    this->throw_position_pub = nh_.advertise<std_msgs::UInt16>("throw/motorth_cmd_pos", 1);
-    this->throw_enable_pub = nh_.advertise<std_msgs::UInt16>("throw/motorth_cmd", 1);
-    this->pick_position_pub = nh_.advertise<std_msgs::Bool>("pick/motorpc_cmd_pos", 1);
-    this->pick_enable_pub = nh_.advertise<std_msgs::Bool>("pick/motorpc_cmd", 1);
-    this->act_enable_pub0 = nh_.advertise<std_msgs::Bool>("base/motor0_cmd", 1);
-    this->act_enable_pub1 = nh_.advertise<std_msgs::Bool>("base/motwr1_cmd", 1);
-    this->act_enable_pub2 = nh_.advertise<std_msgs::Bool>("base/motor2_cmd", 1);
-    this->act_enable_pub3 = nh_.advertise<std_msgs::Bool>("base/motor3_cmd", 1);
+    this->throw_position_pub = nh_.advertise<std_msgs::Float32>("throw/motorth_cmd_pos", 1);
+    this->throw_enable_pub = nh_.advertise<std_msgs::UInt8>("throw/motorth_cmd", 1);
+    this->pick_position_pub = nh_.advertise<std_msgs::Float32>("pick/motorpc_cmd_pos", 1);
+    this->pick_enable_pub = nh_.advertise<std_msgs::UInt8>("pick/motorpc_cmd", 1);
+    this->act_enable_pub0 = nh_.advertise<std_msgs::UInt8>("base/motor0_cmd", 1);
+    this->act_enable_pub1 = nh_.advertise<std_msgs::UInt8>("base/motwr1_cmd", 1);
+    this->act_enable_pub2 = nh_.advertise<std_msgs::UInt8>("base/motor2_cmd", 1);
+    this->act_enable_pub3 = nh_.advertise<std_msgs::UInt8>("base/motor3_cmd", 1);
     //this->hand_unchuck_thres_pub = nh_.advertise<std_msgs::UInt16>("hand/unchuck_thres", 1);
 
     auto nh_priv = ros::NodeHandle("~");
@@ -183,9 +183,9 @@ void CrMain::shutdownInputCallback(const std_msgs::Empty::ConstPtr& msg)
 {
     if (!this->_shutdown)
     {
-        this->_shutdown = true;
+//        this->_shutdown = 1;
 
-        ROS_INFO("aborting.");
+//        ROS_INFO("aborting.");
     }
 
     // reset this:
@@ -199,7 +199,7 @@ void CrMain::startInputCallback(const std_msgs::Empty::ConstPtr& msg)
 
     ROS_INFO("starting.");
 
-    act_enable_msg.data = true;
+    act_enable_msg.data = 1;
     act_enable_pub0.publish(act_enable_msg);
     act_enable_pub1.publish(act_enable_msg);
     act_enable_pub2.publish(act_enable_msg);
@@ -207,7 +207,7 @@ void CrMain::startInputCallback(const std_msgs::Empty::ConstPtr& msg)
     pick_enable_pub.publish(act_enable_msg);
     throw_enable_pub.publish(act_enable_msg);
 
-    this->_shutdown = false;
+    this->_shutdown = 0;
 }
 
 void CrMain::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
@@ -235,7 +235,7 @@ void CrMain::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
     {
         ROS_INFO("starting.");
 
-        act_enable_msg.data = true;
+        act_enable_msg.data = 1;
         act_enable_pub0.publish(act_enable_msg);
         act_enable_pub1.publish(act_enable_msg);
         act_enable_pub2.publish(act_enable_msg);
@@ -243,7 +243,7 @@ void CrMain::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
         pick_enable_pub.publish(act_enable_msg);
         throw_enable_pub.publish(act_enable_msg);
 
-        this->_shutdown = false;  
+        this->_shutdown = 0;  
     }
 
 
@@ -251,19 +251,19 @@ void CrMain::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
     {
         if (!this->_shutdown)
         {
-            this->_shutdown = true;
+//            this->_shutdown = 1;
 
-            ROS_INFO("aborting.");
+//            ROS_INFO("aborting.");
         }
 
-        act_enable_msg.data = false;
-        act_enable_pub0.publish(act_enable_msg);
-        act_enable_pub1.publish(act_enable_msg);
-        act_enable_pub2.publish(act_enable_msg);
-        act_enable_pub3.publish(act_enable_msg);
+//        act_enable_msg.data = 0;
+//        act_enable_pub0.publish(act_enable_msg);
+//        act_enable_pub1.publish(act_enable_msg);
+//        act_enable_pub2.publish(act_enable_msg);
+//        act_enable_pub3.publish(act_enable_msg);
     }
 
-    if (!this->_shutdown)
+/*    if (!this->_shutdown)
     {
         if (_a && !last_a)
         {
@@ -310,7 +310,7 @@ void CrMain::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
             pick_position_pub.publish(pick_position_msg);
         }
     }
-
+*/
     last_a = _a;
     last_b = _b;
     last_x = _x;
